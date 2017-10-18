@@ -1,0 +1,83 @@
+local w,h = term.getSize()
+os.loadAPI("ZyPI")
+os.loadAPI("flibapi")
+local running = true
+
+local clickables = {
+        {text = "Unlock", x = ZyPI.centerOutput("Unlock"), y = math.floor(h/2) - 0},
+        {text = "5 Minutes", x = ZyPI.centerOutput("5 Minutes"), y = math.floor(h/2) + 1},
+        {text = "10 Minutes", x = ZyPI.centerOutput("10 Minutes"), y = math.floor(h/2) + 2},
+		{text = "15 Minutes", x = ZyPI.centerOutput("10 Minutes"), y = math.floor(h/2) + 3},
+		{text = "20 Minutes", x = ZyPI.centerOutput("10 Minutes"), y = math.floor(h/2) + 4},
+		{text = "25 Minutes", x = ZyPI.centerOutput("10 Minutes"), y = math.floor(h/2) + 5},
+		{text = "30 Minutes", x = ZyPI.centerOutput("10 Minutes"), y = math.floor(h/2) + 6},
+		{text = "Back", x = 1, y = h},
+}
+
+local config = flibapi.getTable("config")
+local bg = string.sub(config[4],string.find(config[4],":")+2)
+local tc = string.sub(config[3],string.find(config[3],":")+2)
+
+--Gui
+
+term.clear()
+
+local function success(minutes)
+	term.clear()
+	if minutes == 0 then
+		ZyPI.printCentered(h/2, "Opening door...")
+		rednet.send(doorId, "open")
+	else
+		ZyPI.printCentered(h/2, "Opening door for ")
+		ZyPI.printCentered((h/2) + 1, minutes.. " minutes...")
+		rednet.send(doorId, "open" ..minutes)
+	end
+sleep(4)
+end
+
+local function drawButtons()
+    for _, v in pairs(clickables) do
+                term.setCursorPos(v.x, v.y)
+                term.clearLine()
+				term.setTextColor(colors[tc])
+				if v.text == "Back" then
+					term.setBackgroundColor(colors.black)
+				end
+                write(v.text)
+				term.setBackgroundColor(colors[bg])
+    end
+	e = { os.pullEvent() }
+	if e[1] == "mouse_click" then
+		if e[2] == 1 then
+				bValid, sOption = ZyPI.isValidMouseClick(clickables, e[3], e[4])
+				if bValid then
+					rednet.open("top")
+						if sOption == "Unlock" then
+							success(0)
+						elseif sOption == "5 Minutes" then
+							success(5)
+						elseif sOption == "10 Minutes" then
+							success(10)
+						elseif sOption == "15 Minutes" then
+							success(15)
+						elseif sOption == "20 Minutes" then
+							success(20)
+						elseif sOption == "25 Minutes" then
+							success(25)
+						elseif sOption == "30 Minutes" then
+							success(30)
+						elseif sOption == "Back" then
+						end
+					rednet.close("top")
+				end
+		end
+	end
+end
+
+--Drawing
+while running == true do
+drawButtons()
+ZyPI.drawMenu("Unlock Options")
+end
+
+
