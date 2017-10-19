@@ -64,7 +64,7 @@ print("Checking Files")
 
 --3 is low priority, 2 is moderate, and 1 is high
 if search("FileHandlers/Recovery", 2) == false then
-	download("tba", "FileHandlers/Recovery")
+	download("https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/FileHandlers/Recovery", "FileHandlers/Recovery")
 	blueScreen("Crucial file is missing in solution, restart to fix", "FileHandlers/Recovery")
 end
 
