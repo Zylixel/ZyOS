@@ -1,0 +1,165 @@
+local w,h = term.getSize()
+os.loadAPI("flibapi")
+
+function printCentered (y,s)
+    x = math.floor((w - string.len(s)) / 2) + 1
+    term.setCursorPos(x,y)
+    term.clearLine()
+    term.write(s)
+end
+
+function centerOutput(text)
+    x = math.floor((w - string.len(text)) / 2) + 1
+    return x
+end
+
+function printLeft(y, text)
+    local x = math.floor((w - string.len(text)) / 2) - 7
+    term.setCursorPos(x,y)
+    term.write(text)
+end
+
+function printRight(y, text)
+    local x = math.floor((w - string.len(text)) / 2) + 9
+    term.setCursorPos(x,y)
+    term.write(text)
+end
+
+function isValidMouseClick(_table, mx, my)
+        for _, v in pairs(_table) do
+                if mx >= v.x and mx < v.x + #v.text
+                and my == v.y then
+                        return true, v.text
+                end
+        end
+        return false, nil
+end
+
+function drawMenu(title)
+    local config = flibapi.getTable("config")
+    local bgcolor = tostring(string.sub(config[4],string.find(config[4],":")+2))
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setTextColor(colors.white)
+    term.clear()
+    term.setCursorPos(1,1)
+	ZyPI.setColor(2)
+    term.write("ZyOS V1.0")
+	ZyPI.setColor()
+    ZyPI.printCentered(math.floor(h/2) - 3, " ")
+	ZyPI.setColor(2)
+	term.setCursorPos(ZyPI.centerOutput(" " ..title.. " "), math.floor(h/2- 2))
+    write(" " ..title.. " ")
+	ZyPI.setColor()
+    ZyPI.printCentered(math.floor(h/2) - 1, " ")
+end
+
+function fontEdit(x, y, color)
+	term.setTextColor(colors[color])
+	term.setCursorPos(x,y)
+	term.clear()
+end
+
+function colorChange(color, color2, x, y, a)
+	term.setTextColor(colors[color])
+	if color2 == d then
+		term.setBackgroundColor(colors[bgColor])
+	else
+		term.setBackgroundColor(colors[color2])
+	end
+	if x ~= 0 then term.setCursorPos(x, y) end
+	if a == "a" then
+		term.clear()
+	elseif a == "l" then
+		term.clearLine()
+	elseif a == "n" then
+
+	end
+end
+
+function printCCentered(text, textColor, yShift)
+    x = math.floor((w - string.len(text)) / 2) + 1
+    if (yShift ~= nil) then
+    	y = math.floor(h / 2) - yShift
+    elseif (yShift == nil) then
+    	y = math.floor(h / 2)
+    end
+    term.setCursorPos(x,y)
+    if textColor ~= nil then term.setTextColor(colors[textColor])
+    term.clearLine()
+    term.write(text)
+    term.setTextColor(colors.white)
+	end
+end
+
+function newText(text, x, y, textColor)
+    if x == "m" then
+        if pocket ~= nil then
+            x = math.floor((w - string.len(text)) / 2) + 1
+        else
+            x = math.floor((w - string.len(text)) / 2)
+        end
+    end
+    term.setCursorPos(x, y)
+    if textColor ~= nil then term.setTextColor(colors[textColor]) end
+	write(text)
+end
+
+
+function newScreen(text, x, y, textColor, bgColor, s, n)
+	if x == "m" then
+		if pocket ~= nil then
+	    	x = math.floor((w - string.len(text)) / 2) + 1
+	    else
+	    	x = math.floor((w - string.len(text)) / 2)
+	    end
+	    if (pocket ~= nil and y ~= "m") then
+	    	y = math.floor(h / 2) + 1 - y
+	    elseif (pocket == nil and y ~= "m") then
+	    	y = math.floor(h / 2) - y
+	    elseif (pocket ~= nil and y == "m") then
+	    	y = math.floor(h / 2) + 1
+	    elseif (pocket == nil and y == "m") then
+	    	y = math.floor(h / 2)
+	    end
+	end
+    term.setCursorPos(x, y)
+	term.setTextColor(colors[textColor])
+	term.setBackgroundColor(colors[bgColor])
+	if s == "y" then
+		term.clear()
+	end
+	write(text)
+	if n ~= nil then
+		sleep(n)
+	end
+end
+
+function loadingBar(yShift)
+	if pocket ~= nil then
+    	x = math.floor(w / 2) - 11
+    else
+    	x = math.floor(w / 2) - 11
+    end
+    if pocket ~= nil then
+    	y = math.floor(h/2) + yShift
+    else
+    	y = math.floor(h/2) + yShift
+    end
+	ZyPI.colorChange("white", "gray", x, y, 3)
+    write(string.rep(" ",24))
+    ZyPI.newText("loading...", "m", y, "white")
+end
+
+function clearLine(n)
+    term.setCursorPos(1,n)
+    term.clearLine()
+end
+
+function setColor(s)
+	if s == 2 then
+	else
+		term.setBackgroundColor(colors.black)
+	end
+end
+	

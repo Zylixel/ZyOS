@@ -1,0 +1,906 @@
+local w,h = term.getSize()
+os.loadAPI("flibapi")
+	
+
+local startMenuWide = 0
+local startSize = 10
+local hexnums = { [10] = "a", [11] = "b", [12] = "c", [13] = "d", [14] = "e", [15] = "f" }
+
+--Sprites
+
+logo = {
+"mmm     mmm mmm  sss   sss";
+" mm     m m mm     s   s s";
+"mm  m m m m  mm  ss    s s";
+"mmm mmm mmm mmm  sss s sss";
+"      m                   ";
+"    mmm                   ";
+}
+
+ender = {
+"ff7fffffff7ff";
+"ff77fffff77ff";
+"f7f7777777f7f";
+"f0a0f777f0a0f";
+"f0a0f777f0a0f";
+"ffff77777ffff";
+"fffffffffffff";
+"fffffffffffff";
+}
+
+startMenu = {
+" mmmmmmmmmmmmmmmmm";
+"m                m";
+"m                m";
+"m                m";
+"m                m";
+"m                m";
+"m                m";
+"m                m";
+"m                m";
+"m                m";
+"m                m";
+"m                m";
+}
+
+defaultWindowOutline = {
+"smmmmmmmmmmmmmmmmmmmmmmmmmme";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"m                          m";
+"mmmmmmmmmmmmmmmmmmmmmmmmmmmm";
+}
+
+windowFillColor = {
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+"99999999999999999999999999";
+}
+
+threeTallBox = {
+"999999";
+"999999";
+"999999";
+} 
+
+optionMenu = {
+" mmmmmmmmmmmmmmmmmmmmmmm";
+"m                      m";
+"m                      m";
+"m                      m";
+"m                      m";
+"m                      m";
+"m                      m";
+"m                      m";
+"m                      m";
+"m                      m";
+"m                      m";
+"m                      m";
+}
+
+
+--OS Color Theme Loader
+
+
+local config = flibapi.getTable("config")
+local mbg = string.sub(config[1],string.find(config[1],":")+2)
+local sbg = string.sub(config[2],string.find(config[2],":")+2)
+local tc = string.sub(config[3],string.find(config[3],":")+2)
+local bg = string.sub(config[4],string.find(config[4],":")+2)
+local bgc = string.sub(config[5],string.find(config[5],":")+2)
+if bgc == "ender" then 
+	bgp = ender
+else
+	bgp = logo
+end
+
+validColors = {
+        {text = "lightGray", x = math.floor((w - string.len("lightGray")) / 2) - 7, y = 7},
+        {text = "magenta", x = math.floor((w - string.len("magenta")) / 2) - 7, y = 8},
+        {text = "pink", x = math.floor((w - string.len("pink")) / 2) - 7, y = 9},
+        {text = "gray", x = math.floor((w - string.len("gray")) / 2) - 7, y = 10},
+        {text = "cyan", x = math.floor((w - string.len("cyan")) / 2) - 7, y = 11},
+        {text = "purple", x = math.floor((w - string.len("purple")) / 2) - 7, y = 12},
+        {text = "blue", x = math.floor((w - string.len("blue")) / 2) - 7, y = 13},
+        {text = "yellow", x = math.floor((w - string.len("yellow")) / 2) - 7, y = 14},
+        {text = "lightBlue", x = math.floor((w - string.len("lightBlue")) / 2) + 9, y = 8},
+        {text = "orange", x = math.floor((w - string.len("orange")) / 2) + 9, y = 9},
+        {text = "lime", x = math.floor((w - string.len("lime")) / 2) + 9, y = 10},
+        {text = "brown", x = math.floor((w - string.len("brown")) / 2) + 9, y = 11},
+        {text = "green", x = math.floor((w - string.len("green")) / 2) + 9, y = 12},
+        {text = "red", x = math.floor((w - string.len("red")) / 2) + 9, y = 13},
+        {text = "black", x = math.floor((w - string.len("black")) / 2) + 9, y = 14},
+
+}
+
+function validate(input)
+        for _, v in pairs(validColors) do
+                if v.text == input then
+						refresh = true
+                        return true
+                end
+        end
+        return false
+end
+
+validColorsets = {
+        {text = "pretty pink", mainBackground = "magenta", secondaryBackground = "pink", textColor = "purple"},
+        {text = "windows",  mainBackground = "blue", secondaryBackground = "green", textColor = "black"},
+		{text = "blue crew",  mainBackground = "lightBlue", secondaryBackground = "cyan", textColor = "blue"},
+		{text = "minimalistic",  mainBackground = "lightBlue", secondaryBackground = "lightGray", textColor = "cyan"},
+		{text = "ender",  mainBackground = "purple", secondaryBackground = "purple", textColor = "pink"},
+
+}
+
+function validateSet(input)
+	for _, v in pairs(validColorsets) do
+		if v.text == input then
+			mbg = v.mainBackground
+			flibapi.replaceLine("config/",1,"1) Main Theme Color: "..v.mainBackground)
+			sbg = v.secondaryBackground
+			flibapi.replaceLine("config/",2,"2) Secondary Theme Color: "..v.secondaryBackground)
+			tc = v.textColor
+			flibapi.replaceLine("config/",3,"3) Text Color: "..v.textColor)
+			refresh = true
+			return true
+		end
+	end
+    return false
+end
+
+validBackgrounds = {
+        {text = "dynamic", backgroundColor = "white", backgroundSprite = "logo"},
+        {text = "ender",  backgroundColor = "black", backgroundSprite = "ender"},
+}
+
+function validateBackground(input)
+	for _, v in pairs(validBackgrounds) do
+		if v.text == input then
+			bg = v.backgroundColor
+			flibapi.replaceLine("config/",4,"4) Background Color: "..v.backgroundColor)
+			bgc = v.backgroundSprite
+			if bgc == "ender" then 
+				bgp = ender
+			else
+				bgp = logo
+			end
+			flibapi.replaceLine("config",5,"2) Background Spitre: "..v.backgroundSprite)
+			refresh = true
+			return true
+		end
+	end
+    return false
+end
+
+local function getCol(hex)
+	if hex == "s" then
+		return colors[sbg]
+	elseif hex == "m" then
+		return colors[mbg]
+	elseif hex ~= "m" then
+		local value = tonumber(hex,16)
+		if not value then return nil end
+		value = math.pow(2,value)
+		return value
+	end
+end
+	
+	
+--Draw Functions
+	
+	
+local function slowDraw(xinit,yinit,table, bg) -- starting point, picture to draw, background color
+	if not s then s = 1 end
+	for y = 1,#table do
+		for x = 1,#table[y] do
+			term.setCursorPos(xinit + x - 1, yinit + y - 1)
+			local col = getCol(string.sub(table[y],x, x))
+			if s ~= nil and col then
+				term.setBackgroundColor(col)
+				term.write(" ")
+				--sleep(0.05)
+			else
+				term.setBackgroundColor(colors[bg])
+				term.write(" ")
+			end
+		end
+	end
+end
+
+local function draw(xinit,yinit,table,s) -- starting point, picture to draw, background color
+	if not s then s = 1 end
+	for y = 1,#table do
+		for x = 1,#table[y] do
+			term.setCursorPos(xinit + x - 1, yinit + y - 1)
+			local col = getCol(string.sub(table[y],x, x))
+			if s ~= nil and col then
+				term.setBackgroundColor(col)
+				term.write(" ")
+			else
+				term.setBackgroundColor(colors[bg])
+				term.write(" ")
+			end
+		end
+	end
+end
+
+local function colorDraw(xinit,yinit,table,s) -- starting point, picture to draw, color
+	for y = 1,#table do
+		for x = 1,#table[y] do
+			term.setCursorPos(xinit + x - 1, yinit + y - 1)
+				term.setBackgroundColor(colors[s])
+				term.write(" ")
+		end
+	end
+end
+
+function newScreen(text, x, y, textColor, bgColor, s, int) --text, x, y, textColor, bgColor, newScreen y/n, sleepAfterFunction
+	if x == "m" then
+	    	x = math.ceil((w - string.len(text)) / 2)
+	    if y ~= "m" then
+	    	y = math.ceil(h / 2) - y
+	    elseif y == "m" then
+	    	y = math.ceil(h / 2)
+	    end
+	end
+    term.setCursorPos(x, y)
+	term.setTextColor(colors[textColor])
+	term.setBackgroundColor(colors[bgColor])
+	if s == "y" then
+		term.clear()
+	end
+	write(text)
+	if n ~= nil then
+		sleep(int)
+	end
+end
+
+
+--OS Startscreen Loader
+
+
+local function drawTaskbar()
+	term.setCursorPos(1,h)
+	term.setBackgroundColor(colors[sbg])
+	term.write(string.rep(" ",w/startSize))
+	term.setBackgroundColor(colors[mbg])
+	term.write(string.rep(" ",math.ceil(w-w/startSize)))
+	term.setBackgroundColor(colors[sbg])
+	term.setTextColor(colors.black)
+	term.setCursorPos(1,h)
+	term.write("Menu")
+end
+
+
+local function menuDraw(s, x, y)
+	term.setBackgroundColor(colors[bg])
+	term.setTextColor(colors[tc])
+	term.setCursorPos(x,y)
+	term.write(s)
+end
+
+
+--Draw Menu Functions
+
+
+local function drawStartMenu()
+	draw(1,h - #startMenu,startMenu,"white")
+	menuDraw("Programs", 2, 9)
+	menuDraw("Options", 2, 10)
+end
+
+--Program Menu Functions
+
+local function formatWrite(s,x,y) --Allows writing text in an OS color theme
+	term.setCursorPos(x,y)
+	term.setTextColor(colors[tc])
+	term.setBackgroundColor(colors[bg])
+	term.write(s)
+end
+
+local function fontWrite(s, x, y, textColor, backgroundColor)
+	term.setBackgroundColor(colors[backgroundColor])
+	term.setTextColor(colors[textColor])
+	term.setCursorPos(x,y)
+	write(s)
+end
+
+local function drawProgramMenu()
+	draw(11,h - #optionMenu,optionMenu,"white")
+	menuDraw("Door (ZyPI 1.0)", 12, 9)
+	menuDraw("Pinger", 12, 10)
+end
+
+local function closeStartMenu() -- Used to exit the start menu when a program is opened
+	startMenuOpen = false
+	optionMenuOpen = false
+	programMenuOpen = false
+end
+
+local function drawProgramWindow() -- Draws the standard program outline in the middle of the screen
+	term.setBackgroundColor(colors[bg])
+	term.clear()
+	drawTaskbar(10)
+	draw(math.ceil(w/2 - #bgp[1]/2),math.ceil(h/2 - #bgp/2),bgp) --Clear Screen
+	
+	draw(math.ceil(w/2 - #defaultWindowOutline[1]/2), math.ceil(h/2 - #defaultWindowOutline/2), defaultWindowOutline)
+	term.setCursorPos(39, 3)
+	term.setTextColor(colors.black)
+	term.setBackgroundColor(colors.red)
+	term.write("X")
+	closeStartMenu()
+end
+
+local function moveProgramWindow(xinc, yinc) -- Moves the highlighted program window
+	term.setBackgroundColor(colors[bg])
+	term.clear()
+	draw(math.ceil(w/2 - #bgp[1]/2),math.ceil(h/2 - #bgp/2),bgp) --Clear Screen
+	
+	draw(xinc, yinc, defaultWindowOutline)
+	term.setCursorPos(27 + xinc, yinc)
+	term.setTextColor(colors.black)
+	term.setBackgroundColor(colors.red)
+	term.write("X")
+	
+	drawTaskbar(10)
+	
+	closeStartMenu()
+end
+
+local function refreshProgramWindow(x, y) -- Refreshes Window
+	term.setBackgroundColor(colors[bg])
+	term.clear()
+	draw(math.ceil(w/2 - #bgp[1]/2),math.ceil(h/2 - #bgp/2),bgp) --Clear Screen
+	
+	draw(x, y, defaultWindowOutline)
+	term.setCursorPos(27 + x, y)
+	term.setTextColor(colors.black)
+	term.setBackgroundColor(colors.red)
+	term.write("X")
+	
+	drawTaskbar(10)
+	
+	closeStartMenu()
+end
+
+local function returnCenter(s, int) --returns where to put a string in the center of a specified width
+	return math.ceil((int / 2) - string.len(s) / 2)
+end
+
+local function returnCycle(int) --returns a 3 digit animation according to the int 1-3
+	if int == 1 then return "Ooo" end
+	if int == 2 then return "ooO" end
+	if int == 3 then return "oOo" end
+end
+
+local function returnValidClick(info, int, x, y, xend, yend) --detects if a mouse click is valid within a certain area. info is the pullEvent variable. int = left/right click
+	if xend == nil then xend = x end
+	if yend == nil then yend = y end
+	if info[2] == int then
+		if info[3] >= x then
+			if info[3] <= xend then
+				if info[4] >= y then
+					if info[4] <= yend then
+						return true
+					end
+				end
+			end
+		end
+	else
+		return false
+	end
+end
+
+local function returnPingerInfo(int, s) --returns info for the pinger program, usually used for variable use
+	for i = 1,6 do
+		u = i + 6
+		y = i + 12
+		t = i + 18
+		if int == i and s == "Name" then return string.sub(config[u],string.find(config[u],":")+2) end
+		if int == i and s == "ID" then return string.sub(config[y],string.find(config[y],":")+2) end
+		if int == i and s == "Password" then return string.sub(config[t],string.find(config[t],":")+2) end
+	end
+end
+
+pingerName1 = returnPingerInfo(1, "Name")
+pingerName2 = returnPingerInfo(2, "Name")
+pingerName3 = returnPingerInfo(3, "Name")
+pingerName4 = returnPingerInfo(4, "Name")
+pingerName5 = returnPingerInfo(5, "Name")
+pingerName6 = returnPingerInfo(6, "Name")
+
+pingerId1 = tonumber(returnPingerInfo(1, "ID"))
+pingerId2 = tonumber(returnPingerInfo(2, "ID"))
+pingerId3 = tonumber(returnPingerInfo(3, "ID"))
+pingerId4 = tonumber(returnPingerInfo(4, "ID"))
+pingerId5 = tonumber(returnPingerInfo(5, "ID"))
+pingerId6 = tonumber(returnPingerInfo(6, "ID"))
+
+pingerPassword1 = returnPingerInfo(1, "Password")
+pingerPassword2 = returnPingerInfo(2, "Password")
+pingerPassword3 = returnPingerInfo(3, "Password")
+pingerPassword4 = returnPingerInfo(4, "Password")
+pingerPassword5 = returnPingerInfo(5, "Password")
+pingerPassword6 = returnPingerInfo(6, "Password")
+
+local function setPingerInfo(int, s, input) --Sets info for the Pinger Program
+	for i = 1,6 do
+		if int == i and s == "Name" then
+			local u = i+6
+			flibapi.replaceLine("config/",u,u..") pingerName"..i..": "..input)
+			if int == 1 then pingerName1 = input end
+			if int == 2 then pingerName2 = input end
+			if int == 3 then pingerName3 = input end
+			if int == 4 then pingerName4 = input end
+			if int == 5 then pingerName5 = input end
+			if int == 6 then pingerName6 = input end
+		end
+		if int == i and s == "ID" then
+			local u = i+12
+			flibapi.replaceLine("config/",u,u..") pingerId"..i..": "..tonumber(input))
+			if int == 1 then pingerId1 = tonumber(input) end
+			if int == 2 then pingerId2 = tonumber(input) end
+			if int == 3 then pingerId3 = tonumber(input) end
+			if int == 4 then pingerId4 = tonumber(input) end
+			if int == 5 then pingerId5 = tonumber(input) end
+			if int == 6 then pingerId6 = tonumber(input) end
+		end
+		if int == i and s == "Password" then
+			local u = i+18
+			flibapi.replaceLine("config/",u,u..") pingerPassword"..i..": "..input)
+			if int == 1 then pingerPassword1 = input end
+			if int == 2 then pingerPassword2 = input end
+			if int == 3 then pingerPassword3 = input end
+			if int == 4 then pingerPassword4 = input end
+			if int == 5 then pingerPassword5 = input end
+			if int == 6 then pingerPassword6 = input end
+		end
+	end
+end
+			
+
+local function PingerHandle() --Handles Everything for the Pinger Program
+	while PingerOpen == true do
+		local xwin = (PingerWindowPosX + 1) -- Window parameters
+		local ywin = (PingerWindowPosY + 1)
+		local xwinend = (PingerWindowPosXEnd - 1)
+		local ywinend = (PingerWindowPosYEnd - 1)
+		local windowWidth = (xwinend - xwin)
+		local windowHeight = (ywinend - ywin)
+		
+		for i = 1,6 do
+			if returnPingerInfo(i, "Name") == "" then
+				setPingerInfo(i, "Name", "New ID")
+			end
+		end
+		
+		if pingerEndButtons == nil then
+			refreshProgramWindow(PingerWindowPosX, PingerWindowPosY)
+			paintutils.drawFilledBox(xwin, ywin, xwinend, ywinend, colors.white)
+			
+			
+			paintutils.drawFilledBox(xwin + 1, ywin + 2, xwin + 6, ywin + 4, colors.cyan) --Buttons
+			fontWrite(pingerName1, math.ceil(((6/2) - (string.len(pingerName1) / 2)) + xwin + 1), ywin + 3, "black", "cyan")
+			paintutils.drawFilledBox(xwin + 10, ywin + 2, xwin + 15, ywin + 4, colors.red)
+			fontWrite(pingerName2, math.ceil(((6/2) - (string.len(pingerName2) / 2)) + xwin + 10), ywin + 3, "black", "red")
+			paintutils.drawFilledBox(xwin + 19, ywin + 2, xwin + 24, ywin + 4, colors.lime)
+			fontWrite(pingerName3, math.ceil(((6/2) - (string.len(pingerName3) / 2)) + xwin + 19), ywin + 3, "black", "lime")
+			paintutils.drawFilledBox(xwin + 1, ywin + 7, xwin + 6, ywin + 9, colors.blue)
+			fontWrite(pingerName4, math.ceil(((6/2) - (string.len(pingerName4) / 2)) + xwin + 1), ywin + 8, "black", "blue")
+			paintutils.drawFilledBox(xwin + 10, ywin + 7, xwin + 15, ywin + 9, colors.magenta)
+			fontWrite(pingerName5, math.ceil(((6/2) - (string.len(pingerName5) / 2)) + xwin + 10), ywin + 8, "black", "magenta")
+			paintutils.drawFilledBox(xwin + 19, ywin + 7, xwin + 24, ywin + 9, colors.yellow)
+			fontWrite(pingerName6, math.ceil(((6/2) - (string.len(pingerName6) / 2)) + xwin + 19), ywin + 8, "black", "yellow")
+		end
+			
+		pingerCycle = 1
+		
+		while pinger1 do
+			if pingerName1 == "New ID" then
+				formatWrite("New Pinging Device", math.ceil(((windowWidth/2) - (string.len("New Pinging Device") / 2)) + xwin ), math.floor(windowHeight/2) + ywin - 2)
+				paintutils.drawLine(xwin + 3, ywin + 5, xwinend - 3, ywin + 5, colors[sbg])
+				term.setCursorPos(xwin + 4, ywin + 5)
+				term.setTextColor(colors.black)
+				write("Name: ")
+				paintutils.drawLine(xwin + 3, ywin + 7, xwinend - 3, ywin + 7, colors[sbg])
+				term.setCursorPos(xwin + 4, ywin + 7)
+				term.setTextColor(colors.black)
+				write("ID: ")
+				paintutils.drawLine(xwin + 3, ywin + 9, xwinend - 3, ywin + 9, colors[sbg])
+				term.setCursorPos(xwin + 4, ywin + 9)
+				term.setTextColor(colors.black)
+				write("Password: ")
+				term.setCursorPos(xwin + 10, ywin + 5)
+				local nameInput = read()
+				term.setCursorPos(xwin + 8, ywin + 7)
+				local idInput = read()
+				term.setCursorPos(xwin + 14, ywin + 9)
+				local passwordInput = read()
+				setPingerInfo(1, "Name", nameInput)
+				setPingerInfo(1, "ID", idInput)
+				setPingerInfo(1, "Password", passwordInput)
+			else
+				rednet.open(modemSide)
+				rednet.send(2, "PingLight")
+				paintutils.drawFilledBox(xwin, ywin, xwinend, ywinend, colors.orange)																				
+				fontWrite("Pinging Door", math.ceil(((windowWidth/2) - (string.len("Pinging Door") / 2)) + xwin ), math.floor(windowHeight/2) + ywin - 2, "gray", "orange")
+				paintutils.drawFilledBox(xwin + 9, ywin + 8, xwin + 15, ywin + 10, colors.red)
+				fontWrite("End", xwin + 11, ywin + 9, "black", "red")
+				fontWrite(returnCycle(pingerCycle), math.ceil(((windowWidth/2) - (string.len("OOO") / 2)) + xwin), math.floor(windowHeight/2) + ywin, "gray", "orange")
+				paintutils.drawPixel(PingerWindowPosX, PingerWindowPosY, colors.black)
+				timeout = os.startTimer(2)
+				e = {os.pullEvent()}
+				rednet.close()
+				if (e[1] == "rednet_message" and e[3] == "Pong") then
+					paintutils.drawFilledBox(xwin, ywin, xwinend, ywinend, colors.lime)
+					fontWrite("Successfully Pinged Door", math.ceil(((windowWidth/2) - (string.len("Successfully Pinged Door") / 2)) + xwin), math.floor(windowHeight/2) + ywin, "gray", "lime")
+					sleep(3)
+					pinger1 = false
+					pingerEndButtons = nil
+					PingerHandle()
+				elseif returnValidClick(e, 1, xwin + 9, ywin + 8, xwin + 15, ywin + 10) then
+					pinger1 = false
+					pingerEndButtons = nil
+					PingerHandle()
+				elseif e[1] == "timer" then
+					if pingerCycle <= 2 then pingerCycle = pingerCycle + 1
+					elseif pingerCycle == 3 then pingerCycle = 1 end
+				end
+			end
+		end
+		
+		e = { os.pullEvent() } -- Detects all mouse clicks/movement
+		if e[1] == "mouse_click" then
+			if e[2] == 1 then
+				if e[3] == PingerWindowPosX then -- Cursor Drag
+					if e[4] == PingerWindowPosY then
+						inMouseDrag = true
+						while inMouseDrag == true do
+							e = { os.pullEvent() }
+							if e[1] == "mouse_drag" then
+								if e[3] <= w - 2 then
+									if e[4] <= h - 2 then
+										formatWrite(e[3], xwin, ywin)
+										moveProgramWindow(e[3], e[4])
+										PingerWindowPosX = e[3]
+										PingerWindowPosY = e[4]
+										PingerWindowPosXEnd = e[3] + 27
+										PingerWindowPosYEnd = e[4] + 13
+									end
+								end
+							elseif e[1] == "mouse_up" then
+								inMouseDrag = false
+							end
+						end
+					end
+				elseif returnValidClick(e, 1, PingerWindowPosXEnd, PingerWindowPosY) then -- Window Close
+						PingerOpen = false
+				elseif returnValidClick(e, 1, xwin + 1, ywin + 2, xwin + 7, ywin + 5) then -- Cyan Button
+					pingerEndButtons = true
+					pinger1 = true
+					refreshProgramWindow(PingerWindowPosX, PingerWindowPosY)
+				end
+			end
+		end
+	end
+end
+
+local function openProgram(s, xinc, yinc) --Opens a program that was specified in the string variablie
+	if xinc == nil then xinc = 0 end
+	if yinc == nil then yinc = 0 end	
+	if s == "pinger" then
+	PingerOpen = true
+	PingerWindowPosX = 12 + xinc
+	PingerWindowPosY = 3 + yinc
+	PingerWindowPosXEnd = 39 + xinc
+	PingerWindowPosYEnd = 16 + yinc
+	drawProgramWindow(xinc, yinc)
+	PingerHandle()
+	end
+end
+
+PingerSelected = true
+
+
+
+
+
+-- Option Menu Functions
+
+local function drawOptionMenu()
+	draw(11,h - #optionMenu,optionMenu,"white")
+	menuDraw("Main Theme Color", 12, 9)
+	menuDraw("Secondary Theme Color", 12, 10)
+	menuDraw("Text Color", 12, 11)
+	menuDraw("Preset Themes", 12, 12)
+	menuDraw("Background", 12, 13)
+end
+
+local function waitForClick()
+	e = { os.pullEvent() }
+	if e[1] == "mouse_click" then
+	else
+		sleep(0.5)
+		waitForClick()
+	end
+end
+
+local function colorHelpScreen(int)
+	if int == nil then
+		newScreen("Invalid Color.", "m", "3", "red", "black", "y", 1)
+		newScreen("Find a list of colors!", "m", "0", "lightGray", "black", "n", 0)
+		newScreen("computercraft.info/wiki", "m", "-2", "lightGray", "black", "n", 0)
+		newScreen("/Colors_(API)", "m", "-3", "lightGray", "black", "n", 0)
+	elseif int == 1 then
+		newScreen("Invalid Background.", "m", "3", "red", "black", "y", 1)
+		newScreen("Curret Presets available:", "m", "0", "lightGray", "black", "n", 0)
+		newScreen("dynamic, ender", "m", "-2", "lightGray", "black", "n", 0)
+	elseif int == 2 then
+		newScreen("Invalid Preset.", "m", "3", "red", "black", "y", 1)
+		newScreen("Curret Backgrounds available:", "m", "0", "lightGray", "black", "n", 0)
+		newScreen("pretty pink, windows, blue crew", "m", "-2", "lightGray", "black", "n", 0)
+		newScreen("minimalistic, ender", "m", "-3", "lightGray", "black", "n", 0)
+	end
+	newScreen("Click to exit", w-12, h, "lightGray", "black", "n", 0)
+	waitForClick()
+	refresh = true
+end
+
+local function colorScreenQuestioner()
+	draw(34,h - #startMenu,startMenu,"white")
+	term.setBackgroundColor(colors[bg])
+	term.setCursorPos(36,12)
+	term.write("Set Color To:")
+	term.setCursorPos(36,13)
+	local input = read()
+	return input
+end
+
+local function closeMainThemeMenu()
+	mainThemeMenuOpen = false
+	startMenuWide = 35
+end
+
+local function drawMainThemeMenu()
+	local input = colorScreenQuestioner()
+	local good = validate(input)
+	if good then
+		closeMainThemeMenu()
+		flibapi.replaceLine("config/",1,"1) Main Theme Color: "..input)
+		return input
+	else
+		colorHelpScreen()
+		closeMainThemeMenu()
+		return string.sub(config[1],string.find(config[1],":")+2)
+	end
+	return input
+end
+
+local function closeSecondaryThemeMenu()
+	secondaryThemeMenuOpen = false
+	startMenuWide = 35
+end
+
+local function drawSecondaryThemeMenu()
+	local input = colorScreenQuestioner()
+	local good = validate(input)
+	if good then
+		closeSecondaryThemeMenu()
+		flibapi.replaceLine("config/",2,"2) Secondary Theme Color: "..input)
+		return input
+	else
+		closeSecondaryThemeMenu()
+		colorHelpScreen()
+		return string.sub(config[2],string.find(config[2],":")+2)
+	end
+end
+
+local function closeTextColorMenu()
+	textColorMenuOpen = false
+	startMenuWide = 35
+end
+
+local function drawTextColorMenu()
+	local input = colorScreenQuestioner()
+	local good = validate(input)
+	if good then
+		closeTextColorMenu()
+		flibapi.replaceLine("config/",3,"3) Text Color: "..input)
+		return input
+	else
+		colorHelpScreen()
+		closeTextColorMenu()
+		return string.sub(config[3],string.find(config[3],":")+2)
+	end
+end
+
+local function closeColorsetMenu()
+	colorsetMenuOpen = false
+	startMenuWide = 35
+end
+
+local function drawColorsetMenu()
+	local input = colorScreenQuestioner()
+	local good = validateSet(input)
+	if good then
+		closeColorsetMenu()
+	else
+		closeColorsetMenu()
+		colorHelpScreen(2) 
+	end
+end
+
+local function closeBackgroundMenu()
+	backgroundMenuOpen = false
+	startMenuWide = 35
+end
+
+local function drawBackgroundMenu()
+	local input = colorScreenQuestioner()
+	local good = validateBackground(input)
+	if good then
+		closeBackgroundMenu()
+	else
+		colorHelpScreen(1) 
+		closeBackgroundMenu()
+	end
+end
+
+local function mouseClick() --Handles Most Mouse Clicks
+	e = { os.pullEvent() }
+	if e[1] == "mouse_click" then
+		if e[2] == 1 then
+			if not startMenuOpen then 
+				if (e[3] <= w/startSize and e[4] == h) then 
+					startMenuOpen = true
+					startMenuWide = 19
+				end
+			elseif startMenuOpen then
+				if e[4] == h then 
+					closeStartMenu()
+				elseif e[4] <= 6 then
+					closeStartMenu()
+				elseif e[3] >= startMenuWide then 
+						closeStartMenu()
+				end
+				if optionMenuOpen then
+					if not mainThemeMenuOpen and ((e[3] >= 12 and e[3] <= 32) and (e[4] == 9)) then
+							mainThemeMenuOpen = true
+							startMenuWide = 100
+					elseif not secondaryThemeMenuOpen and ((e[3] >= 12 and e[3] <= 32) and (e[4] == 10)) then
+							secondaryThemeMenuOpen = true
+							startMenuWide = 100
+					elseif not textColorMenuOpen and ((e[3] >= 12 and e[3] <= 32) and (e[4] == 11)) then
+							textColorMenuOpen = true
+							startMenuWide = 100
+					elseif not colorsetMenuOpen and ((e[3] >= 12 and e[3] <= 32) and (e[4] == 12)) then
+							colorsetMenuOpen = true
+							startMenuWide = 100
+					elseif not backgrountMenuOpen and ((e[3] >= 12 and e[3] <= 32) and (e[4] == 13)) then
+							backgroundMenuOpen = true
+							startMenuWide = 100
+					elseif e[3] <= 10 then
+						optionMenuOpen = false
+						startMenuWide = 19	
+					end
+				end
+				if programMenuOpen then
+					if (e[3] >= 12 and e[3] <= 32) and (e[4] == 9) then
+						shell.run("programs/door")
+						closeStartMenu()
+					elseif ((e[3] >= 12 and e[3] <= 32) and (e[4] == 10)) then
+						openProgram("pinger")
+						closeStartMenu()
+					elseif e[3] <= 10 then
+						programMenuOpen = false
+						startMenuWide = 19	
+					end
+				end
+				if not optionMenuOpen then
+					if (e[3] <= 8 and e[3] >= 2) and (e[4] == 10) then
+						optionMenuOpen = true
+						startMenuWide = 35
+					end
+					if (e[3] <= 8 and e[3] >= 2) and (e[4] == 9) then
+						programMenuOpen = true
+						startMenuWide = 35
+					end
+				end
+			end
+		end
+	elseif e[1] == "key" then
+		if e[2] == 1 then
+			if startMenuOpen then
+				closeStartMenu()
+			end
+		end
+	end
+end
+
+runthrough = 20
+local function loadModems()
+	if runthrough >= 1 then
+		runthrough = runthrough - 1
+		return "thinking"
+	elseif runthrough == 0 then 
+		for a,b in pairs(rs.getSides()) do 
+			if peripheral.getType(b) == 'modem' then
+				modemSide = b
+				return true 
+			end
+		end
+	end
+end
+
+
+--Start all functions
+
+
+for i = 1,h - 5 do 
+	term.clear()
+	if loadModems() == "thinking" then fontWrite("Loading Modem...", 1, h, "gray", "black") end
+	if loadModems() == true then fontWrite("Loaded Modem!", 1, h, "lime", "black") end
+	slowDraw(math.ceil(w/2 - #logo[1]/2),i,logo,"black")
+	sleep(0.1)
+end
+for i = h-5,math.ceil(h/2 - #logo/2),-1 do
+	term.clear()
+	if loadModems() == "thinking" then fontWrite("Loading Modem...", 1, h, "gray", "black") end
+	if loadModems() == true then fontWrite("Loaded Modem!", 1, h, "lime", "black") end
+	slowDraw(math.ceil(w/2 - #logo[1]/2),i,logo,"black")
+	sleep(0.1)
+end
+while true do
+	term.setBackgroundColor(colors[bg])
+	term.clear()
+	drawTaskbar(10)
+	draw(math.ceil(w/2 - #bgp[1]/2),math.ceil(h/2 - #bgp/2),bgp)
+	if startMenuOpen == true then 
+		drawStartMenu()
+		if programMenuOpen == true then
+			drawProgramMenu()
+		end
+		if optionMenuOpen == true then
+			drawOptionMenu()
+			if mainThemeMenuOpen == true then
+			mbg = drawMainThemeMenu()
+			elseif secondaryThemeMenuOpen == true then
+			sbg = drawSecondaryThemeMenu()
+			elseif textColorMenuOpen == true then
+			tc = drawTextColorMenu()
+			elseif colorsetMenuOpen == true then
+			drawColorsetMenu()
+			elseif backgroundMenuOpen == true then
+			drawBackgroundMenu()
+			end
+		end
+	end
+	if PingerOpen == true then
+		drawProgramWindow()
+	end
+	--sleep(0.75)
+	if refresh then
+		refresh = false
+	else
+		mouseClick()
+	end
+end
+	

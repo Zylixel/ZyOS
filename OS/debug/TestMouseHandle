@@ -1,0 +1,83 @@
+os.loadAPI("MouseHandle")
+
+term.clear()
+term.setCursorPos(1,1)
+print("Testing waitClick(1)")
+if MouseHandle.waitClick(1) then
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Success")
+	sleep(3)
+end
+
+term.clear()
+term.setCursorPos(1,1)
+print("Testing waitClick(2)")
+if MouseHandle.waitClick(2) then
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Success")
+	sleep(3)
+end
+
+term.clear()
+term.setCursorPos(1,1)
+print("Testing pauseClick(1,1)")
+if MouseHandle.pauseClick(1,1) then
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Success")
+	sleep(3)
+else
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Failure")
+	sleep(3)
+end
+
+term.clear()
+term.setCursorPos(1,1)
+print("Testing pauseClick(1,5)")
+if MouseHandle.pauseClick(1,5) then
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Success")
+	sleep(3)
+else
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Failure")
+	sleep(3)
+end
+
+term.clear()
+term.setCursorPos(1,1)
+print("Testing returnValidClick(1, 1, 5, 1, 5)")
+if returnValidClick(1, 1, 5, 1, 5) then
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Success")
+	sleep(3)
+else
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Failure")
+	sleep(3)
+end
+
+term.clear()
+term.setCursorPos(1,1)
+print("Testing inDrag in 5 seconds...")
+sleep(2)
+print("Please start dragging")
+if returnValidClick(1, 1, 5, 1, 5) then
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Success")
+	sleep(3)
+else
+	term.clear()
+	term.setCursorPos(1,1)
+	print("Failure")
+	sleep(3)
+end

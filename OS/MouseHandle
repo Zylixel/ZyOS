@@ -1,0 +1,53 @@
+local w,h = term.getSize()
+
+function waitClick(button)
+	e = { os.pullEvent() }
+	if e[1] == "mouse_click" then
+		if e[2] == button then
+			return true
+		else
+			return false
+		end
+	end
+end
+
+function pauseClick(button, waitTime)
+local timeout = os.startTimer(waitTime)
+	e = { os.pullEvent() }
+	if e[1] == "mouse_click" then
+		if e[2] == button then
+			return true
+		end
+	elseif event[1] == "timer" and event[2] == timeout then
+		return false
+	end
+end
+
+function returnValidClick(button, x, y, xend, yend) --detects if a mouse click is valid within a certain area.
+	e = { os.pullEvent() }
+	if xend == nil then xend = x end
+	if yend == nil then yend = y end
+	if e[2] == button then
+		if e[3] >= x then
+			if e[3] <= xend then
+				if e[4] >= y then
+					if e[4] <= yend then
+						return true
+					end
+				end
+			end
+		end
+	else
+		return false
+	end
+end
+
+function inDrag()
+	e = { os.pullEvent() }
+	if e[1] == "mouse_drag" then
+		return true
+	else
+		return false
+	end
+end
+							
