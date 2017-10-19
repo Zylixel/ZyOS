@@ -1,4 +1,6 @@
-function exists(path) --Used so it won't crash in event of FileHandle missing
+local w,h = term.getSize()
+
+local function exists(path) --Used so it won't crash in event of FileHandle missing
 	local file = assert(io.open(path, "r"))
 	if file ~= nil then
 		file:close()
@@ -7,16 +9,86 @@ function exists(path) --Used so it won't crash in event of FileHandle missing
 	return false
 end
 
+
+local function blueScreen(general, defined)
+while true do
+	text = "A fatal error has occured in code execution"
+	x = math.floor((w - string.len(text)) / 2)
+    term.setCursorPos(x, 5)
+	term.setTextColor(colors.white)
+	term.setBackgroundColor(colors.blue)
+	term.clear()
+	write(text)
+	x = math.floor((w - string.len(general)) / 2)
+	term.setCursorPos(x, 7)
+	write(general)
+	x = math.floor((w - string.len(defined)) / 2)
+	term.setCursorPos(x, 9)
+	write(defined)
+	sleep(100)
+end
+end
+
+
+function download(url, file) --Only used for recovery
+  local content = http.get(url).readAll()
+  if not content then
+    blueScreen("Cannot connect to webpage", url)
+  end
+  f = fs.open(file, "w")
+  f.write(content)
+  f.close()
+end
+
+local function search(currentSearch, priority)
+	if fs.exists(currentSearch) then
+		term.setTextColor(colors.lime)
+		print("Found " ..currentSearch)
+		sleep(0.2)
+		return true
+	else
+		term.setTextColor(colors.red)
+		print(currentSearch.. " Not in Solution!")
+		if priority < 2 then
+			blueScreen("Crucial file is missing in solution", "VisualHandlers/TextHandler")
+		end
+		sleep(0.2)
+		return false
+	end
+end
+
 term.setBackgroundColor(colors.black)
 term.clear()
 term.setCursorPos(1,1)
 print("Checking Files")
-currentSearch = "FileHandlers/FileHandle"
 
-if exists(currentSearch) then
-	term.setTextColor(colors.black)
-	print("Found " ..currentSearch)
-else
-term.setTextColor(colors.red)
-	print(currentSearch.. " Not in Solution!")
+--3 is low priority, 2 is moderate, and 1 is high
+if search("FileHandlers/Recovery", 2) == false then
+	download("tba", "FileHandlers/Recovery")
+	blueScreen("Crucial file is missing in solution, restart to fix", "FileHandlers/Recovery")
+end
+
+search("FileHandlers/FileHandle", 1)
+
+search("Version", 2)
+
+search("InputHandlers/MouseHandle", 1)
+
+if search("VisualHandlers/TextHandler", 1) == true then
+	safeToUseTextHandler = true
+	os.loadAPI("VisualHandlers/TextHandler")
+	TextHandler.printCentered("Checking Files", "cyan", -8)
+end
+
+term.setCursorPos(1,6)
+search("debug/DebugHandler", 1)
+search("debug/TestMouseHandle", 3)
+search("debug/CheckVersion", 1)
+
+if search("ConnectionHandlers/CheckVersionHandle", 2) == true then
+	safeToUseCheckVersionHandle = true
+	os.loadAPI("ConnectionHandlers/CheckVersionHandle")
+	if CheckVersionHandle.check(false) == true then
+		print("OS up to date!")
+	end
 end

@@ -1,22 +1,3 @@
-os.loadAPI("debug/DebugHandler")
-os.loadAPI("FileHandlers/FileHandle")
+os.loadAPI("ConnectionHandlers/CheckVersionHandle")
 
-function check(debugMode)
-	if debugMode == nil then debugMode = false end
-	OnlineVersion = http.get("https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/Version")
-	OnlineVersionData = (OnlineVersion.readAll())
-	OnlineVersion.close()
-	OSVersion = FileHandle.getTable("Version")
-	
-	if debugMode then
-		DebugHandler.checkUpToDate(OSVersion[1], OnlineVersionData)
-	else
-		if OSVer == OnlineVer then 
-			return true
-		else
-			return false
-		end
-	end
-end
-
-check(true)
+CheckVersionHandle.check(true)

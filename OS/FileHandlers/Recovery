@@ -1,0 +1,9 @@
+function download(url, file) --Move to Connection
+  local content = http.get(url).readAll()
+  if not content then
+    blueScreen("Cannot connect to webpage", url)
+  end
+  f = fs.open(file, "w")
+  f.write(content)
+  f.close()
+end

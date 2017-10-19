@@ -1,0 +1,54 @@
+local w,h = term.getSize()
+
+function fontEdit(x, y, color)
+	term.setTextColor(colors[color])
+	term.setCursorPos(x,y)
+	term.clear()
+	return
+end
+
+function colorChange(color, color2)
+	term.setTextColor(colors[color])
+	term.setBackgroundColor(colors[color2])
+end
+
+function printCentered(text, textColor, yShift)
+	if yShift == nil then yShift = 0 end
+    term.setTextColor(colors[textColor]) --TODO theme match
+    x = math.floor((w - string.len(text)) / 2)
+	y = math.floor(h / 2) + yShift
+    term.setCursorPos(x,y)
+    term.clearLine()
+    write(text)
+	term.setCursorPos(1,y + 1)
+    term.setTextColor(colors.white)
+end
+
+function newText(text, x, y, textColor)
+    if textColor ~= nil then term.setTextColor(colors[white]) end --TODO theme match
+    if x == "m" then
+		x = math.floor((w - string.len(text)) / 2)
+    end
+    term.setCursorPos(x, y)
+	write(text)
+end
+
+function newScreen(text, x, y, textColor, bgColor)
+	if x == "m" then
+	    x = math.floor((w - string.len(text)) / 2)
+	    if (y ~= "m") then
+	    	y = math.floor(h / 2) + y
+	    elseif (y == "m") then
+	    	y = math.floor(h / 2)
+	    end
+	end
+    term.setCursorPos(x, y)
+	term.setTextColor(colors[textColor])
+	term.setBackgroundColor(colors[bgColor])
+	write(text)
+end
+
+function clearLine(n)
+    term.setCursorPos(1,n)
+    term.clearLine()
+end
