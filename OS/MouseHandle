@@ -18,28 +18,44 @@ local timeout = os.startTimer(waitTime)
 		if e[2] == button then
 			return true
 		end
-	elseif event[1] == "timer" and event[2] == timeout then
+	elseif e[1] == "timer" and e[2] == timeout then
 		return false
 	end
 end
 
 function returnValidClick(button, x, y, xend, yend) --detects if a mouse click is valid within a certain area.
+if xend == nil then xend = x end
+if yend == nil then yend = y end
+work = true -- TODO slim down code by switching true/false
+while (work == true) do
 	e = { os.pullEvent() }
-	if xend == nil then xend = x end
-	if yend == nil then yend = y end
-	if e[2] == button then
-		if e[3] >= x then
-			if e[3] <= xend then
-				if e[4] >= y then
-					if e[4] <= yend then
-						return true
-					end
-				end
-			end
-		end
+	if e[1] ~= "mouse_click" then
+		returnValue = false
 	else
-		return false
+		returnValue = true
 	end
+	if returnValue then
+		if e[2] == button then
+			if e[3] >= x then
+				if e[3] <= xend then
+					if e[4] >= y then
+						if e[4] <= yend then
+							return true
+						end
+					else
+						return false
+					end
+				else
+					return false
+				end
+			else
+				return false
+			end
+		else
+			return false
+		end
+	end
+end
 end
 
 function inDrag()

@@ -1,0 +1,23 @@
+local w,h = term.getSize()
+
+local function printCentered(s, yOffset) --Have to add locally to prevent errors in other files
+    x = math.floor((w - string.len(s)) / 2)
+	y = math.floor((h / 2) + yOffset)
+    term.setCursorPos(x,y)
+    term.clearLine()
+    term.write(s)
+end
+
+function showResults(success, outOf, needed)
+	term.setBackgroundColor(colors.gray)
+	term.clear()
+	printCentered("Debugger found that " ..success.. " out of " ..outOf.. " functions work", -1)
+	printCentered("Although, only " ..needed.. " out of " ..outOf.. " functions need to work", 1)
+	while true do
+		e = { os.pullEvent() }
+		if e[1] == "mouse_click" then
+				return
+		end
+	end
+end
+

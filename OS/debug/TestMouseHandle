@@ -1,5 +1,10 @@
 os.loadAPI("MouseHandle")
+os.loadAPI("debug/DebugHandler")
 
+success = 0
+
+print("Loading...")
+sleep(1)
 term.clear()
 term.setCursorPos(1,1)
 print("Testing waitClick(1)")
@@ -7,7 +12,8 @@ if MouseHandle.waitClick(1) then
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Success")
-	sleep(3)
+	sleep(2)
+	success = success + 1
 end
 
 term.clear()
@@ -17,7 +23,8 @@ if MouseHandle.waitClick(2) then
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Success")
-	sleep(3)
+	sleep(2)
+	success = success + 1
 end
 
 term.clear()
@@ -27,12 +34,13 @@ if MouseHandle.pauseClick(1,1) then
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Success")
-	sleep(3)
+	sleep(2)
+	success = success + 1
 else
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Failure")
-	sleep(3)
+	sleep(2)
 end
 
 term.clear()
@@ -42,27 +50,32 @@ if MouseHandle.pauseClick(1,5) then
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Success")
-	sleep(3)
+	sleep(2)
+	success = success + 1
 else
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Failure")
-	sleep(3)
+	sleep(2)
 end
 
 term.clear()
 term.setCursorPos(1,1)
-print("Testing returnValidClick(1, 1, 5, 1, 5)")
-if returnValidClick(1, 1, 5, 1, 5) then
+print("Testing returnValidClick(1, 1, 2, 5, 6)")
+paintutils.drawFilledBox(1, 2, 5, 6, colors.lime)
+if MouseHandle.returnValidClick(1, 1, 2, 5, 6) then
+	term.setBackgroundColor(colors.black)
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Success")
-	sleep(3)
+	success = success + 1
+	sleep(2)
 else
+	term.setBackgroundColor(colors.black)
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Failure")
-	sleep(3)
+	sleep(2)
 end
 
 term.clear()
@@ -70,14 +83,11 @@ term.setCursorPos(1,1)
 print("Testing inDrag in 5 seconds...")
 sleep(2)
 print("Please start dragging")
-if returnValidClick(1, 1, 5, 1, 5) then
-	term.clear()
-	term.setCursorPos(1,1)
-	print("Success")
-	sleep(3)
-else
-	term.clear()
-	term.setCursorPos(1,1)
-	print("Failure")
-	sleep(3)
+sleep(3)
+if MouseHandle.inDrag then
+	success = success + 1
 end
+
+DebugHandler.showResults(success, 6, 5)
+sleep(7)
+term.clear()
