@@ -7,6 +7,11 @@ function fontEdit(x, y, color)
 	return
 end
 
+function fontPrint(text, color)
+    term.setTextColor(colors[color])
+    print(text)
+end
+
 function colorChange(color, color2)
 	term.setTextColor(colors[color])
 	term.setBackgroundColor(colors[color2])
@@ -52,3 +57,4 @@ function clearLine(n)
     term.setCursorPos(1,n)
     term.clearLine()
 end
+

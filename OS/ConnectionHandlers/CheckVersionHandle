@@ -9,7 +9,7 @@ function check(debugMode)
 	OSVersion = FileHandle.getTable("Version")
 	
 	if debugMode == false then
-		if OSVer == OnlineVer then 
+		if OSVersion[1] == OnlineVersionData then 
 			return true
 		else
 			return false
