@@ -1,3 +1,35 @@
-local sExample = http.get("http://example.com/") --Get contents of page
-write(sExample.readAll()) --Read and print contents of page
-sExample.close() --Just in case
+os.loadAPI("debug/DebugHandler")
+
+function exists(path) --TODO put in new API
+	local file = assert(io.open(path, "r"))
+	if file ~= nil then
+		file:close()
+		return true
+	end
+	
+	return false
+end
+
+function getTable(path) --TODO put in new API
+	if exists(path) then
+		local file = io.open(path, "r")
+		local lines = {}
+		local i = 1
+		local line = file:read("*l")
+		while line ~= nil do
+			lines[i] = line
+			line = file:read("*l")
+			i = i + 1
+		end
+		file:close()
+		return lines
+	end
+	return {}
+end
+
+local OnlineVersion = http.get("https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/Version")
+OnlineVersionData = (OnlineVersion.readAll())
+OnlineVersion.close()
+local OSVersion = getTable("Version")
+
+DebugHandler.checkUpToDate(OSVersion[1], OnlineVersionData)

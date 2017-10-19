@@ -16,7 +16,33 @@ function showResults(success, outOf, needed)
 	while true do
 		e = { os.pullEvent() }
 		if e[1] == "mouse_click" then
-				return
+			term.setBackgroundColor(colors.black)
+			term.clear()
+			term.setCursorPos(1,1)
+			return
+		end
+	end
+end
+
+function checkUpToDate(OSVer, OnlineVer)
+	if OSVer ~= OnlineVer then
+		term.setBackgroundColor(colors.orange)
+		term.clear()
+		printCentered("Debugger found that your OS is on version " ..OSVer, -1)
+		printCentered("The current version available online is on: " ..OnlineVer, 1)
+	else
+		term.setBackgroundColor(colors.lime)
+		term.clear()
+		printCentered("Debugger found that your OS is on version " ..OSVer, -1)
+		printCentered("This matches the current version available online", 1)
+	end
+	while true do
+		e = { os.pullEvent() }
+		if e[1] == "mouse_click" then
+			term.setBackgroundColor(colors.black)
+			term.clear()
+			term.setCursorPos(1,1)
+			return
 		end
 	end
 end

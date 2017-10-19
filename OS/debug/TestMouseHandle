@@ -1,4 +1,4 @@
-os.loadAPI("MouseHandle")
+os.loadAPI("InputHandles/MouseHandle")
 os.loadAPI("debug/DebugHandler")
 
 success = 0
