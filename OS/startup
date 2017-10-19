@@ -86,6 +86,7 @@ if search("ConnectionHandlers/CheckVersionHandle", 2) == true then
 		if (CheckVersionHandle.check(false) == true) then
 			TextHandler.fontPrint("OS up to date!", "lime")
 		else
+			Recovery.download(currentSearch)
 			TextHandler.fontPrint("OS out of date!", "red")
 		end
 	else
