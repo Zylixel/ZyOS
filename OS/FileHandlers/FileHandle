@@ -1,0 +1,26 @@
+function exists(path)
+	local file = assert(io.open(path, "r"))
+	if file ~= nil then
+		file:close()
+		return true
+	end
+	
+	return false
+end
+
+function getTable(path)
+	if exists(path) then
+		local file = io.open(path, "r")
+		local lines = {}
+		local i = 1
+		local line = file:read("*l")
+		while line ~= nil do
+			lines[i] = line
+			line = file:read("*l")
+			i = i + 1
+		end
+		file:close()
+		return lines
+	end
+	return {}
+end

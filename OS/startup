@@ -1,0 +1,22 @@
+function exists(path) --Used so it won't crash in event of FileHandle missing
+	local file = assert(io.open(path, "r"))
+	if file ~= nil then
+		file:close()
+		return true
+	end
+	return false
+end
+
+term.setBackgroundColor(colors.black)
+term.clear()
+term.setCursorPos(1,1)
+print("Checking Files")
+currentSearch = "FileHandlers/FileHandle"
+
+if exists(currentSearch) then
+	term.setTextColor(colors.black)
+	print("Found " ..currentSearch)
+else
+term.setTextColor(colors.red)
+	print(currentSearch.. " Not in Solution!")
+end
