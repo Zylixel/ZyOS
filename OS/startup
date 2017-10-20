@@ -1,36 +1,25 @@
 local w,h = term.getSize()
 
-local function exists(path) --Used so it won't crash in event of FileHandle missing
-	local file = assert(io.open(path, "r"))
-	if file ~= nil then
-		file:close()
-		return true
+function blueScreen(general, defined)
+	while true do
+		text = "A fatal error has occured in code execution"
+		x = math.floor((w - string.len(text)) / 2)
+		term.setCursorPos(x, 5)
+		term.setTextColor(colors.white)
+		term.setBackgroundColor(colors.blue)
+		term.clear()
+		write(text)
+		x = math.floor((w - string.len(general)) / 2)
+		term.setCursorPos(x, 7)
+		write(general)
+		x = math.floor((w - string.len(defined)) / 2)
+		term.setCursorPos(x, 9)
+		write(defined)
+		sleep(100)
 	end
-	return false
 end
 
-
-local function blueScreen(general, defined)
-while true do
-	text = "A fatal error has occured in code execution"
-	x = math.floor((w - string.len(text)) / 2)
-    term.setCursorPos(x, 5)
-	term.setTextColor(colors.white)
-	term.setBackgroundColor(colors.blue)
-	term.clear()
-	write(text)
-	x = math.floor((w - string.len(general)) / 2)
-	term.setCursorPos(x, 7)
-	write(general)
-	x = math.floor((w - string.len(defined)) / 2)
-	term.setCursorPos(x, 9)
-	write(defined)
-	sleep(100)
-end
-end
-
-
-function download(url, file) --Only used for recovery
+local function download(url, file) --Only used for recovery
   local content = http.get(url).readAll()
   if not content then
     blueScreen("Cannot connect to webpage", url)
@@ -40,67 +29,11 @@ function download(url, file) --Only used for recovery
   f.close()
 end
 
-local function search(currentSearch, priority)
-	if fs.exists(currentSearch) then
-		term.setTextColor(colors.lime)
-		print("Found " ..currentSearch)
-		sleep(0.2)
-		return true
-	else
-		if priority ==  2 then term.setTextColor(colors.red) end
-		if priority ==  3 then term.setTextColor(colors.orange) end
-		print(currentSearch.. " Not in Solution! Requesting Recovery...")
-		Recovery.download(currentSearch)
-		if priority < 2 then
-			blueScreen("Crucial file is missing in solution", currentSearch)
-		end
-		sleep(0.05)
-		return false
-	end
-end
-
-term.setBackgroundColor(colors.black)
-term.clear()
-term.setCursorPos(1,1)
-print("Checking Files")
-
---3 is low priority, 2 is moderate, and 1 is high
-if search("FileHandlers/Recovery", 2) == false then
-	download("https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/FileHandlers/Recovery", "FileHandlers/Recovery")
-	blueScreen("Crucial file is missing in solution, restart to fix", "FileHandlers/Recovery")
+if fs.exists("FileHandlers/FileCheck") then
+	os.loadAPI("FileHandlers/FileCheck")
+	FileCheck.checkAll()
 else
-	os.loadAPI("FileHandlers/Recovery")
+	blueScreen("Crucial file is missing in solution, restart", "FileHandlers/FileCheck")
+	download("https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/FileHandlers/FileCheck","FileHandlers/FileCheck")
 end
-
-if search("Version", 2) == false then OverrideVersionCheck = true else OverrideVersionCheck = false end
-
-if search("VisualHandlers/TextHandler", 1) == true then
-	os.loadAPI("VisualHandlers/TextHandler")
-	TextHandler.printCentered("Checking Files", "cyan", -8)
-end
-
-if search("ConnectionHandlers/CheckVersionHandle", 2) == true then
-	safeToUseCheckVersionHandle = true
-	os.loadAPI("ConnectionHandlers/CheckVersionHandle")
-	if OverrideVersionCheck == false then
-		if (CheckVersionHandle.check(false) == true) then
-			TextHandler.fontPrint("OS up to date!", "lime")
-		else
-			Recovery.download(currentSearch)
-			TextHandler.fontPrint("OS out of date!", "red")
-		end
-	else
-	TextHandler.fontPrint("Can't Check OS Version", "orange")
-	end
-end
-
-search("FileHandlers/FileHandle", 1)
-
-search("InputHandlers/MouseHandle", 1)
-
-term.setCursorPos(1,7)
-search("debug/DebugHandler", 2)
-search("debug/TestMouseHandle", 3)
-search("debug/CheckVersion", 3)
-
 

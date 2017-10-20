@@ -18,6 +18,7 @@ function colorChange(color, color2)
 end
 
 function printCentered(text, textColor, yShift)
+	curx, cury = term.getCursorPos()
 	if yShift == nil then yShift = 0 end
     term.setTextColor(colors[textColor]) --TODO theme match
     x = math.floor((w - string.len(text)) / 2)
@@ -25,7 +26,7 @@ function printCentered(text, textColor, yShift)
     term.setCursorPos(x,y)
     term.clearLine()
     write(text)
-	term.setCursorPos(1,y + 1)
+	term.setCursorPos(curx, cury + 1)
     term.setTextColor(colors.white)
 end
 

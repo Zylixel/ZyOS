@@ -1,8 +1,25 @@
 webSource = "https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/"
 
+function blueScreen(general, defined)
+	while true do
+		text = "A fatal error has occured in code execution"
+		x = math.floor((w - string.len(text)) / 2)
+		term.setCursorPos(x, 5)
+		term.setTextColor(colors.white)
+		term.setBackgroundColor(colors.blue)
+		term.clear()
+		write(text)
+		x = math.floor((w - string.len(general)) / 2)
+		term.setCursorPos(x, 7)
+		write(general)
+		x = math.floor((w - string.len(defined)) / 2)
+		term.setCursorPos(x, 9)
+		write(defined)
+		sleep(100)
+	end
+end
 
 function download(url) --Move to Connection
-	print(webSource.. "" ..url)
   local content = http.get(webSource.. "" ..url).readAll()
   if not content then
     blueScreen("Cannot connect to webpage", url)
