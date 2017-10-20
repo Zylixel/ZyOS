@@ -51,9 +51,7 @@ local function search(currentSearch)
 		curx, cury = term.getCursorPos()
 		term.setCursorPos(curx, cury)
 		download(currentSearch)
-		if priority < 2 then
 		table.insert(bluescreenqueue, currentSearch)
-		end
 		return false
 	end
 end
