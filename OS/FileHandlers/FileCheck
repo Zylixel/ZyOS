@@ -15,27 +15,42 @@ local function blueScreen(general)
 		term.setCursorPos(x, 7)
 		write(general)
 		for i = 1,#bluescreenqueue do
-			x = math.floor((w - string.len(bluescreenqueue[i])) / 2)
-			term.setCursorPos(x, 9 + i)
-			write(bluescreenqueue[i])
+			if i == 3 then
+				print("And more...")
+			else
+				x = math.floor((w - string.len(bluescreenqueue[i])) / 2)
+				term.setCursorPos(x, 9 + i)
+				write(bluescreenqueue[i])
+			end
 		end
 		sleep(100)
 	end
 end
 
-local function search(currentSearch, priority)
+webSource = "https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/"
+
+local function download(url)
+  local content = http.get(webSource.. "" ..url).readAll()
+  if not content then
+    blueScreen("Cannot connect to webpage", url)
+  end
+  f = fs.open(url, "w")
+  f.write(content)
+  f.close()
+end
+
+local function search(currentSearch)
 	if fs.exists(currentSearch) then
 		term.setTextColor(colors.lime)
 		print("Found " ..currentSearch)
 		sleep(0.2)
 		return true
 	else
-		if priority <=  2 then term.setTextColor(colors.red) end
-		if priority ==  3 then term.setTextColor(colors.orange) end
+		term.setTextColor(colors.red)
 		print(currentSearch.. " Not in Solution! Requesting Recovery...")
 		curx, cury = term.getCursorPos()
-		term.setCursorPos(curx, cury + 1)
-		Recovery.download(currentSearch)
+		term.setCursorPos(curx, cury)
+		download(currentSearch)
 		if priority < 2 then
 		table.insert(bluescreenqueue, currentSearch)
 		end
@@ -43,51 +58,38 @@ local function search(currentSearch, priority)
 	end
 end
 
-local function download(url, file) --Only used for recovery
-  local content = http.get(url).readAll()
-  if not content then
-    blueScreen("Cannot connect to webpage", url)
-  end
-  f = fs.open(file, "w")
-  f.write(content)
-  f.close()
-end
-
 function checkAll()
 	term.setBackgroundColor(colors.black)
 	term.clear()
 	term.setCursorPos(1,1)
 	print("Checking Files")
-
-	--3 is low priority, 2 is moderate, and 1 is high
-	if search("FileHandlers/Recovery", 2) == false then
-		download("https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/FileHandlers/Recovery", "FileHandlers/Recovery")
-		blueScreen("Crucial file is missing in solution, restart to fix", "FileHandlers/Recovery")
+	
+	if search("FileHandlers/Recovery") == false then
+		download("FileHandlers/Recovery")
+		blueScreen("Crucial file is missing in solution, restart", "FileHandlers/Recovery")
 	else
 		os.loadAPI("FileHandlers/Recovery")
 	end
 
-	if search("Version", 2) == false then OverrideVersionCheck = true else OverrideVersionCheck = false end
+	if search("Version") == false then OverrideVersionCheck = true else OverrideVersionCheck = false end
 
-	if search("VisualHandlers/TextHandler", 1) == true then
+	if search("VisualHandlers/TextHandler") == true then
 		os.loadAPI("VisualHandlers/TextHandler")
 		TextHandler.printCentered("Checking Files", "cyan", -8)
 	end
 
-	term.setCursorPos(1,5)
-
-	if search("ConnectionHandlers/CheckVersionHandle", 2) == true then
+	if search("ConnectionHandlers/CheckVersionHandle") == true then
 		safeToUseCheckVersionHandle = true
 		os.loadAPI("ConnectionHandlers/CheckVersionHandle")
 	end
 
-	search("FileHandlers/FileHandle", 1)
+	search("FileHandlers/FileHandle")
 
-	search("InputHandlers/MouseHandle", 1)
+	search("InputHandlers/MouseHandle")
 
-	search("debug/DebugHandler", 2)
-	search("debug/TestMouseHandle", 3)
-	search("debug/CheckVersion", 3)
+	search("debug/DebugHandler")
+	search("debug/TestMouseHandle")
+	search("debug/CheckVersion")
 
 	if (safeToUseCheckVersionHandle == true and OverrideVersionCheck == false) then
 		if (CheckVersionHandle.check(false) == true) then

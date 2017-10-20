@@ -26,7 +26,7 @@ function printCentered(text, textColor, yShift)
     term.setCursorPos(x,y)
     term.clearLine()
     write(text)
-	term.setCursorPos(curx, cury + 1)
+	term.setCursorPos(curx, cury)
     term.setTextColor(colors.white)
 end
 

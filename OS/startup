@@ -33,7 +33,7 @@ if fs.exists("FileHandlers/FileCheck") then
 	os.loadAPI("FileHandlers/FileCheck")
 	FileCheck.checkAll()
 else
-	blueScreen("Crucial file is missing in solution, restart", "FileHandlers/FileCheck")
 	download("https://raw.githubusercontent.com/Zylixel/ZyOS/master/OS/FileHandlers/FileCheck","FileHandlers/FileCheck")
+	blueScreen("Crucial file is missing in solution, restart", "FileHandlers/FileCheck")
 end
 
